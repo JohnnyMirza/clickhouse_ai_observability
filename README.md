@@ -1,6 +1,6 @@
 # AI-Powered Observability Analytics Workshop
 
-> Query OpenTelemetry data using natural language - A hands-on workshop using ClickHouse, LibreChat, and Langfuse
+> Query OpenTelemetry data using natural language - A hands-on workshop using ClickHouse, LiteLLM, LibreChat, and Langfuse
 
 [![Workshop Duration](https://img.shields.io/badge/Duration-75%20minutes-blue)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -9,7 +9,7 @@
 
 ## 🎯 Overview
 
-This workshop teaches engineers how to analyze observability data using natural language instead of writing complex SQL queries. Participants interact with a LibreChat UI that converts questions into ClickHouse SQL queries against OpenTelemetry v2 data.
+This workshop teaches engineers how to analyze observability data using natural language instead of writing complex SQL queries. Participants interact with a LibreChat UI that uses **LiteLLM as the intelligent proxy** to route requests to LLMs (Claude/GPT-4), which convert questions into ClickHouse SQL queries against OpenTelemetry v2 data.
 
 **Example:**
 ```
@@ -19,7 +19,7 @@ AI:  Generates and explains SQL query
      Provides actionable insights
 ```
 
-All interactions are traced via Langfuse Cloud for full LLMOps observability.
+**Key Learning:** LiteLLM automatically sends all traces to your Langfuse Cloud project for complete LLMOps observability - you'll see every request, token usage, costs, and latency in real-time.
 
 ---
 
@@ -28,7 +28,8 @@ All interactions are traced via Langfuse Cloud for full LLMOps observability.
 - 🗣️ **Natural language queries** - No SQL required
 - 📊 **OpenTelemetry v2 schema** - Production-ready data model
 - 🚀 **Fast performance** - Materialized views for sub-second queries
-- 📈 **Full observability** - Monitor the AI agent with Langfuse
+- 🔄 **LiteLLM proxy** - Intelligent routing with automatic Langfuse tracing
+- 📈 **Full observability** - Every LLM request traced to your Langfuse project
 - 🎓 **Complete workshop materials** - 75-minute structured curriculum
 - 🐳 **Docker-based deployment** - Easy setup on AWS EC2
 - 💰 **Cost-effective** - ~$50 per workshop
@@ -38,27 +39,60 @@ All interactions are traced via Langfuse Cloud for full LLMOps observability.
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐
-│    User     │
-└──────┬──────┘
-       │ Browser (port 3000)
-┌──────▼───────────┐
-│   LibreChat      │ ─── MongoDB
-│   (Chat UI)      │ ─── MeiliSearch
-└──────┬───────────┘
-       │ HTTP (port 4000)
-┌──────▼───────────┐
-│   LiteLLM        │ ─── PostgreSQL
-│   (LLM Proxy)    │
-└──────┬───────────┘
-       │
-       ├──────────┬────────────┐
-       │          │            │
-   ┌───▼───┐  ┌──▼──────┐  ┌──▼─────────┐
-   │Claude │  │Langfuse │  │ClickHouse  │
-   │GPT-4  │  │Cloud    │  │Cloud       │
-   └───────┘  └─────────┘  └────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                     User Browser                        │
+└──────────────────────────┬──────────────────────────────┘
+                           │ HTTP :3000
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│                      LibreChat                          │
+│                   (Chat Interface)                      │
+│          Stores: Conversations, User Auth               │
+└──────────────────────────┬──────────────────────────────┘
+                           │ HTTP :4000
+                           │ (Configured as OpenAI endpoint)
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│                       LiteLLM                           │
+│                   (Core Workshop Component)             │
+│  ┌────────────────────────────────────────────────┐    │
+│  │ • Receives requests from LibreChat             │    │
+│  │ • Injects system prompt (observability schema) │    │
+│  │ • Routes to Claude/GPT-4                       │    │
+│  │ • AUTOMATICALLY sends traces to Langfuse       │    │
+│  │ • Tracks tokens, costs, latency                │    │
+│  └────────────────────────────────────────────────┘    │
+└─────┬─────────────────────┬────────────────────────────┘
+      │                     │
+      │ HTTPS               │ HTTPS
+      │                     │ (Every request traced!)
+      ▼                     ▼
+┌─────────────┐      ┌──────────────────┐
+│   LLM APIs  │      │ Langfuse Cloud   │
+│             │      │ (Your Project)   │
+│ • Claude    │      │                  │
+│ • GPT-4     │      │ Receives:        │
+│ • GPT-4o    │      │ • Full traces    │
+│             │      │ • Token counts   │
+│             │      │ • Cost data      │
+│             │      │ • Latency        │
+└─────────────┘      └──────────────────┘
+      │
+      │ (Queries ClickHouse for data)
+      │
+      ▼
+┌─────────────────────────────┐
+│     ClickHouse Cloud        │
+│   (OpenTelemetry Data)      │
+│                             │
+│ • otel_traces               │
+│ • otel_metrics              │
+│ • otel_logs                 │
+│ • otel_services             │
+└─────────────────────────────┘
 ```
+
+**Critical Flow:** LibreChat → LiteLLM → LLM APIs + Langfuse (parallel traces)
 
 ---
 
@@ -173,9 +207,10 @@ Participants will learn to:
 2. Analyze service performance, errors, and latency
 3. Build service dependency graphs
 4. Check SLA compliance
-5. Understand AI agent architecture (LibreChat → LiteLLM → ClickHouse)
-6. Optimize ClickHouse queries for observability
-7. Trace LLM requests with Langfuse
+5. Understand AI agent architecture (LibreChat → LiteLLM → LLMs + Langfuse)
+6. Configure LiteLLM to automatically send traces to Langfuse
+7. Optimize ClickHouse queries for observability
+8. Monitor LLM usage, costs, and latency in Langfuse dashboards
 
 ---
 
@@ -320,9 +355,9 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## 🙏 Acknowledgments
 
-- Based on [ClickHouse telco_marketing workshop](https://github.com/ClickHouse/ClickHouse_Demos/tree/main/agent_stack_builds/telco_marketing)
-- Inspired by the OpenTelemetry community
-- Built with LibreChat, LiteLLM, and Langfuse
+- Inspired by ClickHouse workshop patterns for AI agent development
+- Built on OpenTelemetry observability standards
+- Powered by LibreChat, LiteLLM, and Langfuse
 
 ---
 

@@ -1,15 +1,18 @@
 # AI-Powered Observability Analytics Workshop
 
-A hands-on 75-minute workshop demonstrating how to build an AI agent that queries OpenTelemetry data in ClickHouse using natural language.
+A hands-on 75-minute workshop demonstrating how to build an AI agent using **LiteLLM** that queries OpenTelemetry data in ClickHouse using natural language, with automatic tracing to Langfuse.
 
 ## 🎯 Workshop Overview
 
 Participants will learn how to:
 - Deploy a production-ready AI chat interface (LibreChat) on EC2
+- Configure **LiteLLM as the intelligent proxy** to route LLM requests
 - Connect to ClickHouse Cloud with OpenTelemetry v2 schema
-- Use LLMs to convert natural language questions into SQL queries
-- Trace and observe AI agent behavior with Langfuse Cloud
+- Use LLMs (Claude/GPT-4) to convert natural language questions into SQL queries
+- **Automatically trace all requests to Langfuse Cloud** (every token, cost, latency)
 - Analyze service performance, errors, and latency using conversational queries
+
+**Key Focus:** Understanding how LiteLLM handles LLM routing and automatic Langfuse tracing
 
 **Duration:** 75 minutes
 **Level:** Intermediate
@@ -18,33 +21,60 @@ Participants will learn how to:
 ## 🏗️ Architecture
 
 ```
-┌─────────────┐
-│   User      │
-└──────┬──────┘
-       │
-┌──────▼──────────┐
-│   LibreChat     │  (Chat UI on EC2)
-│   (Docker)      │
-└──────┬──────────┘
-       │
-┌──────▼──────────┐
-│   LiteLLM       │  (LLM Proxy + Langfuse Integration)
-│   (Docker)      │
-└──────┬──────────┘
-       │
-       ├─────────────────────┐
-       │                     │
-┌──────▼──────────┐   ┌─────▼─────────┐
-│  Claude/OpenAI  │   │  Langfuse     │
-│  (LLM Provider) │   │  Cloud        │
-└──────┬──────────┘   └───────────────┘
-       │
-┌──────▼──────────┐
-│  ClickHouse     │
-│  Cloud          │
-│  (otel_v2)      │
-└─────────────────┘
+┌──────────────────────────────────────────────────┐
+│              User Browser                        │
+└───────────────────┬──────────────────────────────┘
+                    │ HTTP :3000
+                    │
+┌───────────────────▼──────────────────────────────┐
+│             LibreChat (Chat UI)                  │
+│  • User authentication                           │
+│  • Conversation history                          │
+│  • Markdown rendering                            │
+└───────────────────┬──────────────────────────────┘
+                    │ HTTP :4000
+                    │ (Points to LiteLLM as OpenAI endpoint)
+                    │
+┌───────────────────▼──────────────────────────────┐
+│         LiteLLM (CORE WORKSHOP COMPONENT)        │
+│  ┌────────────────────────────────────────────┐  │
+│  │ 1. Receives chat messages from LibreChat  │  │
+│  │ 2. Injects system prompt (DB schema info) │  │
+│  │ 3. Routes to Claude/GPT-4                 │  │
+│  │ 4. AUTO-TRACES to Langfuse (every call!)  │  │
+│  │ 5. Streams response back                   │  │
+│  └────────────────────────────────────────────┘  │
+└─────┬─────────────────────┬──────────────────────┘
+      │                     │
+      │ HTTPS               │ HTTPS
+      │                     │ (Parallel - traces sent here!)
+      ▼                     ▼
+┌─────────────┐      ┌──────────────────────┐
+│  LLM APIs   │      │   Langfuse Cloud     │
+│             │      │  (YOUR PROJECT)      │
+│ • Claude    │      │                      │
+│ • GPT-4     │      │ Captures:            │
+│ • GPT-4o    │      │ • Full traces        │
+│             │      │ • Token usage        │
+│             │      │ • Costs              │
+│             │      │ • Latency            │
+│             │      │ • System prompts     │
+└─────────────┘      └──────────────────────┘
+      │
+      │ (Generated SQL queries ClickHouse)
+      ▼
+┌─────────────────────────────┐
+│     ClickHouse Cloud        │
+│  (OpenTelemetry Data)       │
+│                             │
+│ • otel_traces               │
+│ • otel_metrics              │
+│ • otel_logs                 │
+│ • otel_services             │
+└─────────────────────────────┘
 ```
+
+**Workshop Focus:** LibreChat → **LiteLLM** (automatic Langfuse tracing) → LLMs
 
 ## 📊 Data Model
 

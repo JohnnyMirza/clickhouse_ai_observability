@@ -524,7 +524,7 @@ This workshop demonstrates:
 ---
 
 *Created: March 30, 2026*
-*Based on: ClickHouse telco_marketing workshop*
+*Architecture: LibreChat → LiteLLM (with Langfuse tracing) → Claude/GPT-4 → ClickHouse*
 *Use case: OpenTelemetry observability data analysis*
 *Duration: 75 minutes*
 *Audience: Engineers, SREs, Platform teams*
