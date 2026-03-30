@@ -58,7 +58,9 @@ endpoints:
           - "claude-3-5-sonnet"
           - "gpt-4-turbo"
           - "gpt-4o"
+          - "gemini-1.5-pro"
           - "claude-3-haiku"
+          - "gemini-1.5-flash"
           - "gpt-3.5-turbo"
         fetch: false
       titleConvo: true
@@ -128,6 +130,26 @@ modelSpecs:
       preset:
         endpoint: "Observability AI"
         model: "claude-3-haiku"
+        max_tokens: 4096
+        temperature: 0.1
+
+    - name: "gemini-1.5-pro"
+      label: "Gemini 1.5 Pro"
+      description: "Google's powerful model for complex analysis"
+      iconURL: "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/google.svg"
+      preset:
+        endpoint: "Observability AI"
+        model: "gemini-1.5-pro"
+        max_tokens: 4096
+        temperature: 0.1
+
+    - name: "gemini-1.5-flash"
+      label: "Gemini 1.5 Flash (Fast)"
+      description: "Google's fast model for quick queries"
+      iconURL: "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/google.svg"
+      preset:
+        endpoint: "Observability AI"
+        model: "gemini-1.5-flash"
         max_tokens: 4096
         temperature: 0.1
 

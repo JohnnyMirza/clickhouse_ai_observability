@@ -94,14 +94,52 @@ model_list:
       mode: chat
       supports_function_calling: true
 
+  # Google Gemini Models (if using Google)
+  - model_name: gemini-1.5-pro
+    litellm_params:
+      model: gemini/gemini-1.5-pro
+      api_key: ${GOOGLE_API_KEY}
+      max_tokens: 4096
+      temperature: 0.1
+      metadata:
+        tags: ["workshop", "observability", "production"]
+    model_info:
+      mode: chat
+      supports_function_calling: true
+
+  - model_name: gemini-1.5-flash
+    litellm_params:
+      model: gemini/gemini-1.5-flash
+      api_key: ${GOOGLE_API_KEY}
+      max_tokens: 4096
+      temperature: 0.1
+      metadata:
+        tags: ["workshop", "observability", "fast"]
+    model_info:
+      mode: chat
+      supports_function_calling: true
+
+  - model_name: gemini-pro
+    litellm_params:
+      model: gemini/gemini-pro
+      api_key: ${GOOGLE_API_KEY}
+      max_tokens: 4096
+      temperature: 0.1
+      metadata:
+        tags: ["workshop", "observability", "lite"]
+    model_info:
+      mode: chat
+      supports_function_calling: true
+
 # Router Settings (for load balancing and fallbacks)
 router_settings:
   routing_strategy: simple-shuffle
 
   # Model fallbacks
   fallbacks:
-    - gpt-4-turbo: ["gpt-4o", "claude-3-5-sonnet"]
-    - claude-3-5-sonnet: ["gpt-4-turbo", "gpt-4o"]
+    - gpt-4-turbo: ["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]
+    - claude-3-5-sonnet: ["gpt-4-turbo", "gpt-4o", "gemini-1.5-pro"]
+    - gemini-1.5-pro: ["claude-3-5-sonnet", "gpt-4-turbo"]
 
   # Retry settings
   num_retries: 2

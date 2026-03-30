@@ -286,6 +286,27 @@ Choose **ONE** of the following providers:
    - `claude-3-opus-20240229` (advanced reasoning)
    - `claude-3-haiku-20240307` (fast and cheap)
 
+### Option 3: Google Gemini
+
+1. **Create Account**
+   - Go to: https://makersuite.google.com/
+   - Sign in with Google account
+
+2. **Get API Key**
+   - Go to: https://makersuite.google.com/app/apikey
+   - Click "Create API Key"
+   - Select or create a Google Cloud project
+   - Copy key: `AIzaSy...`
+
+3. **Enable Billing** (optional for higher quotas)
+   - Go to Google Cloud Console
+   - Enable billing for higher rate limits
+
+4. **Recommended Models**
+   - `gemini-1.5-pro` (best quality, 2M context)
+   - `gemini-1.5-flash` (fast and cost-effective)
+   - `gemini-pro` (standard model)
+
 ---
 
 ## Workshop Deployment
